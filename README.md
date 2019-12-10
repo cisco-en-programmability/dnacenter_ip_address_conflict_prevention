@@ -13,13 +13,16 @@ This Python script will verify if the use of an IPv4 Address will create a dupli
 
 **Usage**
 
-This app will ask the user to input the following:
+This script will ask the user to input the following:
 
 - IPv4 address
 
-- It will verify if the provided IPv4 address is a valid address. 
-- It will check the current Cisco DNA Center device and client inventories to search for a match of the address.
-- It will verify if the address is reachable at the present time
+It verify if the provided IPv4 address:
+
+- is a valid address. 
+- is configured on a network device interface
+- is in use by any clients
+- is reachable at the present time
 
 
 $ python ip_conflict_prevention.py
