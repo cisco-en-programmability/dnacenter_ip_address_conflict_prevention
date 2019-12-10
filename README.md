@@ -22,7 +22,7 @@ This app will ask the user to input the following:
 - It will verify if the address is reachable at the present time
 
 
-$ python ip_validation.py
+$ python ip_conflict_prevention.py
 
 *Sample output:*
 
