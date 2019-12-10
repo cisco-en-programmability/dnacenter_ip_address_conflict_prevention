@@ -17,12 +17,12 @@ This script will ask the user to input the following:
 
 - IPv4 address
 
-It verify if the provided IPv4 address:
+It will verify if the provided IPv4 address:
 
-- is a valid address. 
+- is a valid address
 - is configured on a network device interface
 - is in use by any clients
-- is reachable at the present time
+- is reachable
 
 
 $ python ip_conflict_prevention.py
