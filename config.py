@@ -33,3 +33,7 @@ DNAC_URL = 'https://Cisco DNA Center Server info'
 DNAC_USER = 'username'
 DNAC_PASS = 'password'
 
+DNAC_IP = '10.93.141.35'
+DNAC_URL = 'https://' + DNAC_IP
+DNAC_USER = 'apiuser'
+DNAC_PASS = 'apiuser123!'

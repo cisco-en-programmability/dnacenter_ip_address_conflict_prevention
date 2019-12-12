@@ -82,6 +82,19 @@ def get_device_info(device_id, dnac_jwt_token):
     return device_info['response'][0]
 
 
+def pnp_get_device_list(dnac_jwt_token):
+    """
+    This function will retrieve the PnP device list info
+    :param dnac_jwt_token: DNA C token
+    :return: PnP device info
+    """
+    url = DNAC_URL + '/dna/intent/api/v1/onboarding/pnp-device'
+    header = {'content-type': 'application/json', 'x-auth-token': dnac_jwt_token}
+    response = requests.get(url, headers=header, verify=False)
+    pnp_device_json = response.json()
+    return pnp_device_json
+
+
 def check_ipv4_network_interface(ip_address, dnac_jwt_token):
     """
     This function will check if the provided IPv4 address is configured on any network interfaces
@@ -94,7 +107,18 @@ def check_ipv4_network_interface(ip_address, dnac_jwt_token):
     response = requests.get(url, headers=header, verify=False)
     response_json = response.json()
     response_status = response_json['response']
+
+    # if response_status is a dict, it will include an error code. This means the IPv4 address is not assigned
+    # to any managed network devices. We will check the PnP inventory next.
+    # if the response_status is a list, it will include the info for the device with the interface
+    # configured with the specified IPv4 address
+
     if type(response_status) is dict:
+        pnp_device_list = pnp_get_device_list(dnac_jwt_token)
+        for pnp_device in pnp_device_list:
+            if pnp_device['deviceInfo']['httpHeaders'][0]['value'] == ip_address:
+                device_hostname = pnp_device['deviceInfo']['hostname']
+                return 'Found', device_hostname, 'unknown'
         return response_status['errorCode'], '', ''
     else:
         try:
@@ -107,7 +131,7 @@ def check_ipv4_network_interface(ip_address, dnac_jwt_token):
         except:
             device_info = get_device_info_ip(ip_address, dnac_jwt_token)  # required for AP's
             device_hostname = device_info['hostname']
-            return 'Found', device_hostname, ''
+            return 'Found', device_hostname, 'unknown'
 
 
 def create_path_trace(src_ip, src_port, dest_ip, dest_port, protocol, dnac_jwt_token):
@@ -233,3 +257,34 @@ def get_device_info_ip(ip_address, dnac_jwt_token):
         return None
     else:
         return device_info
+
+
+def get_physical_topology(ip_address, dnac_jwt_token):
+    """
+    This function will retrieve the physical topology for the device with the {ip_address}
+    :param ip_address: device/interface IP address
+    :param dnac_jwt_token: Cisco DNA C token
+    :return: topology info - connected device hostname and interface
+    """
+    url = DNAC_URL + '/api/v1/topology/physical-topology'
+    header = {'content-type': 'application/json', 'x-auth-token': dnac_jwt_token}
+    response = requests.get(url, headers=header, verify=False)
+    topology_json = response.json()['response']
+    topology_nodes = topology_json['nodes']
+    topology_links = topology_json['links']
+
+    # try to identify the physical topology
+    for link in topology_links:
+        try:
+            if link['startPortIpv4Address'] == ip_address:
+                connected_port = link['endPortName']
+                connected_device_id = link['target']
+                for node in topology_nodes:
+                    if node['id'] == connected_device_id:
+                        connected_device_hostname = node['label']
+                break
+        except:
+            connected_port = None
+            connected_device_hostname = None
+    return connected_device_hostname, connected_port
+
