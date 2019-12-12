@@ -52,7 +52,7 @@ def main():
      - verify if the IPv4 addresses are in use by a network device
      - verify if the IPv4 addresses are in use by a client
      - verify if the IPv4 addresses are reachable
-     - deploying the configuration file will create an IPv4 address conflict if any of the above steps fail for one IP4 address
+     - deploying the configuration file will create an IPv4 address conflict if any of the above steps fail for one IPv4 address
     """
 
     print('\n\nStart of Application "ip_conflict_prevention.py" Run')
