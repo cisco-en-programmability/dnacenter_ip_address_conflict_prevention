@@ -27,87 +27,104 @@ __version__ = "0.1.0"
 __copyright__ = "Copyright (c) 2019 Cisco and/or its affiliates."
 __license__ = "Cisco Sample Code License, Version 1.1"
 
-
-import requests
-import json
+import os
 import urllib3
-import time
-import ipaddress
-
-from urllib3.exceptions import InsecureRequestWarning  # for insecure https warnings
 from requests.auth import HTTPBasicAuth  # for Basic Auth
+from urllib3.exceptions import InsecureRequestWarning  # for insecure https warnings
 
-from config import DNAC_URL, DNAC_PASS, DNAC_USER
+import dnac_apis
+import utils
+from config import DNAC_PASS, DNAC_USER
 
 urllib3.disable_warnings(InsecureRequestWarning)  # disable insecure https warnings
 
 DNAC_AUTH = HTTPBasicAuth(DNAC_USER, DNAC_PASS)
 
 
-def pprint(json_data):
-    """
-    Pretty print JSON formatted data
-    :param json_data: data to pretty print
-    :return None
-    """
-    print(json.dumps(json_data, indent=4, separators=(' , ', ' : ')))
-
-
-def get_dnac_jwt_token(dnac_auth):
-    """
-    Create the authorization token required to access Cisco DNA Center
-    Call to Cisco DNA Center- /api/system/v1/auth/login
-    :param dnac_auth - Cisco DNA Center Basic Auth string
-    :return Cisco DNA Center Auth Token
-    """
-    url = DNAC_URL + '/dna/system/api/v1/auth/token'
-    header = {'content-type': 'application/json'}
-    response = requests.post(url, auth=dnac_auth, headers=header, verify=False)
-    response_json = response.json()
-    dnac_jwt_token = response_json['Token']
-    return dnac_jwt_token
-
-
-def validate_ipv4_address(ipv4_address):
-    """
-    This function will validate if the provided string is a valid IPv4 address
-    :param ipv4_address: string with the IPv4 address
-    :return: true/false
-    """
-    try:
-        ipaddress.ip_address(ipv4_address)
-        return True
-    except:
-        return False
-
-
 def main():
     """
     This sample script will:
-    - ask the user to enter an IPv4 address
-    - validate if the entered IPv4 addresses is valid
-    - verify if the IPv4 address is in use by a network device
-    - verify if the IPv4 address is in use by a client
-    - verify if the Ipv4 address is reachable
+     - ask user to input the file name with the CLI template to be configured
+     - validate the provided file name exists
+     - open the file
+     - select the IPv4 addresses to be configured on interfaces
+     - validate if the selected IPv4 addresses are valid IPv4 addresses
+     - verify if the IPv4 addresses are in use by a network device
+     - verify if the IPv4 addresses are in use by a client
+     - verify if the IPv4 addresses are reachable
+     - deploying the configuration file will create an IPv4 address conflict if any of the above steps fail for one IP4 address
     """
 
     print('\n\nStart of Application "ip_conflict_prevention.py" Run')
 
-    # obtain the Cisco DNA Center Auth Token
-    dnac_token = get_dnac_jwt_token(DNAC_AUTH)
+    # ask user to input the file name with the CLI template to be configured
 
-    # ask user for the input of the IPv4 addresses and ports, protocol
-    # validate if the entered IPv4 addresses are valid
-
-    # enter and validate source ip address
+    # enter and validate the file exists
     while True:
-        source_ip = input('Input the source IPv4 Address:   ')
-        if validate_ipv4_address(source_ip) is True:
+        config_file = input('Input the CLI Template file name (example - "cli.txt"):   ')
+        if os.path.isfile(config_file):
             break
         else:
-            print('IPv4 address is not valid')
+            print('File not found')
 
+    # open file with the template
+    cli_file = open(config_file, 'r')
 
+    # read the file
+    cli_config = cli_file.read()
+    print('\nThe CLI template:\n')
+    print(cli_config)
+
+    ipv4_address_list = utils.identify_ipv4_address(cli_config)
+    print('\nThese valid IPv4 addresses will be configured by this CLI template:')
+    print(ipv4_address_list)
+
+    # get the DNA Center Auth token
+
+    dnac_token = dnac_apis.get_dnac_jwt_token(DNAC_AUTH)
+
+    # check each address against network devices and clients database
+
+    duplicate_ip = False
+    for ipv4_address in ipv4_address_list:
+
+        # check against network devices interfaces
+
+        device_info = dnac_apis.check_ipv4_network_interface(ipv4_address, dnac_token)
+        if device_info[0] == 'Found':
+            duplicate_ip = True
+            print('\nThe IPv4 address ', ipv4_address, ' is used by this device ', device_info[1], ', interface ',
+                  device_info[2])
+        else:
+            print('\nThe IPv4 address ', ipv4_address, ' is not used by any network devices')
+
+            # if IP address no used by network devices continue to check against any hosts
+
+            try:
+                client_info = dnac_apis.get_client_info(ipv4_address, dnac_token)
+                if client_info:
+                    duplicate_ip = True
+                    print('The IPv4 address ', ipv4_address, ' is used by a client')
+                else:
+                    print('The IPv4 address ', ipv4_address, ' is not used by a client')
+
+                    # if IP address no used by a client, continue with the reachability test
+
+                    reachable = utils.ping_return(ipv4_address)
+                    if reachable == 'Success':
+                        duplicate_ip = True
+                        print('The IPv4 address ', ipv4_address, ' is reachable')
+                    else:
+                        print('The IPv4 address ', ipv4_address, ' is not reachable')
+            except:
+                pass
+
+    if duplicate_ip:
+        print('\nDeploying the template ', config_file, ' will create an IP address conflict')
+    else:
+        print('\nDeploying the template ', config_file, ' will not create an IP address conflict')
+
+    # end of the application run
     print('\n\nEnd of Application "path_trace.py" Run')
 
 
