@@ -118,7 +118,7 @@ def check_ipv4_network_interface(ip_address, dnac_jwt_token):
         for pnp_device in pnp_device_list:
             if pnp_device['deviceInfo']['httpHeaders'][0]['value'] == ip_address:
                 device_hostname = pnp_device['deviceInfo']['hostname']
-                return 'Found', device_hostname, 'unknown'
+                return 'Found', device_hostname, ''
         return response_status['errorCode'], '', ''
     else:
         try:
@@ -131,7 +131,7 @@ def check_ipv4_network_interface(ip_address, dnac_jwt_token):
         except:
             device_info = get_device_info_ip(ip_address, dnac_jwt_token)  # required for AP's
             device_hostname = device_info['hostname']
-            return 'Found', device_hostname, 'unknown'
+            return 'Found', device_hostname, ''
 
 
 def create_path_trace(src_ip, src_port, dest_ip, dest_port, protocol, dnac_jwt_token):
