@@ -41,7 +41,7 @@ import sys
 import urllib3
 import subprocess  # needed for the ping function
 import ipaddress  # needed for IPv4 address validation
-import datetime, time  # needed for epoch time conversion
+import datetime  # needed for epoch time conversion
 
 from urllib3.exceptions import InsecureRequestWarning
 
@@ -114,9 +114,10 @@ def validate_ipv4_address(ipv4_address):
 
 def identify_ipv4_address(configuration):
     """
-    This function will return a list of all IPv4 addresses found in the string {configuration}.
-    It will return only the IPv4 addresses found in the {ip address a.b.c.d command}
-    :param configuration: string with the configuration
+    This function will return a list of all valid IPv4 addresses part of the { ip address x.x.x.x} CLI commands
+    from the string {configuration}
+    :param configuration: string with the configuration (single or muliple lines)
+    Sample string '!\ninterface Loopback65\n ip address 10.93.130.21 255.255.255.255\n!'
     :return: list of IPv4 addresses
     """
     ipv4_list = []
@@ -180,3 +181,4 @@ def time_sleep(time_sec):
         print('!', end='')
         time.sleep(1)
     return
+
