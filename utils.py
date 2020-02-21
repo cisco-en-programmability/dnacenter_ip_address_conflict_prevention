@@ -99,6 +99,7 @@ def get_input_timeout(message, wait_time):
     return input_value
 
 
+# noinspection PyBroadException
 def validate_ipv4_address(ipv4_address):
     """
     This function will validate if the provided string is a valid IPv4 address
@@ -116,7 +117,7 @@ def identify_ipv4_address(configuration):
     """
     This function will return a list of all valid IPv4 addresses part of the { ip address x.x.x.x} CLI commands
     from the string {configuration}
-    :param configuration: string with the configuration (single or muliple lines)
+    :param configuration: string with the configuration (single or multiple lines)
     Sample string '!\ninterface Loopback65\n ip address 10.93.130.21 255.255.255.255\n!'
     :return: list of IPv4 addresses
     """
@@ -126,6 +127,7 @@ def identify_ipv4_address(configuration):
     for line in split_lines:
         if 'ip address' in line:  # check if command includes the string 'ip address'
             split_config = line.split(' ')  # split the command in words
+            # noinspection PyBroadException
             try:
                 split_config.remove('')  # remove the first ' ' if existing in the command
             except:

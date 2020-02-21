@@ -266,7 +266,7 @@ def get_physical_topology(ip_address, dnac_jwt_token):
     :param dnac_jwt_token: Cisco DNA C token
     :return: topology info - connected device hostname and interface
     """
-    url = DNAC_URL + '/api/v1/topology/physical-topology'
+    url = DNAC_URL + '/dna/intent/api/v1/topology/physical-topology'
     header = {'content-type': 'application/json', 'x-auth-token': dnac_jwt_token}
     response = requests.get(url, headers=header, verify=False)
     topology_json = response.json()['response']

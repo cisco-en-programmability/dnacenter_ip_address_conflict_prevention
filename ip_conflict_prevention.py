@@ -61,7 +61,7 @@ def main():
 
     # enter and validate the file exists
     while True:
-        config_file = input('Input the CLI Template file name (example - "cli.txt"):   ')
+        config_file = input('Input the CLI Template file name (example - "cli_template.txt"):   ')
         if os.path.isfile(config_file):
             break
         else:
@@ -76,7 +76,7 @@ def main():
     print(cli_config)
 
     ipv4_address_list = utils.identify_ipv4_address(cli_config)
-    print('\nThese valid IPv4 addresses will be configured by this CLI template:')
+    print('\nThe CLI template will configure these valid IPv4 addresses:')
     print(ipv4_address_list)
 
     # get the DNA Center Auth token
@@ -93,7 +93,7 @@ def main():
         device_info = dnac_apis.check_ipv4_network_interface(ipv4_address, dnac_token)
         if device_info[0] == 'Found':
             duplicate_ip = True
-            print('\nThe IPv4 address ', ipv4_address, ' is used by this device ', device_info[1],
+            print('\nThe IPv4 address ', ipv4_address, ' is used by this device ', device_info[1], ', ',config
                   device_info[2])
         else:
             print('\nThe IPv4 address ', ipv4_address, ' is not used by any network devices')
@@ -108,7 +108,7 @@ def main():
                 else:
                     print('The IPv4 address ', ipv4_address, ' is not used by a client')
 
-                    # if IP address no used by a client, continue with the reachability test
+                    # if IP address not used by a client, continue with the reachability test
 
                     reachable = utils.ping_return(ipv4_address)
                     if reachable == 'Success':
@@ -125,7 +125,7 @@ def main():
         print('\nDeploying the template ', config_file, ' will not create an IP address conflict')
 
     # end of the application run
-    print('\n\nEnd of Application "path_trace.py" Run')
+    print('\n\nEnd of Application "ip_conflict_prevention.py" Run')
 
 
 if __name__ == "__main__":
