@@ -121,6 +121,7 @@ def check_ipv4_network_interface(ip_address, dnac_jwt_token):
                 return 'Found', device_hostname, ''
         return response_status['errorCode'], '', ''
     else:
+        # noinspection PyBroadException
         try:
             response_info = response_json['response'][0]
             interface_name = response_info['portName']
@@ -174,6 +175,7 @@ def create_path_trace(src_ip, src_port, dest_ip, dest_port, protocol, dnac_jwt_t
     return path_id
 
 
+# noinspection PyBroadException
 def get_path_trace_info(path_id, dnac_jwt_token):
     """
     This function will return the path trace details for the path visualisation {id}

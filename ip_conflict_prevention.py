@@ -93,8 +93,7 @@ def main():
         device_info = dnac_apis.check_ipv4_network_interface(ipv4_address, dnac_token)
         if device_info[0] == 'Found':
             duplicate_ip = True
-            print('\nThe IPv4 address ', ipv4_address, ' is used by this device ', device_info[1], ', ',config
-                  device_info[2])
+            print('\nThe IPv4 address ', ipv4_address, ' is used by this device ', device_info[1], ', ', device_info[2])
         else:
             print('\nThe IPv4 address ', ipv4_address, ' is not used by any network devices')
 
