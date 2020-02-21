@@ -13,28 +13,27 @@ This Python script will verify if the use of an IPv4 Address will create a dupli
 
 **Usage**
 
-This script will ask the user to input the following:
-
-- IPv4 address
-
 This sample script will:
      - ask user to input the file name with the CLI template to be configured
      - validate the provided file name exists
      - open the file
      - select the IPv4 addresses to be configured on interfaces
      - validate if the selected IPv4 addresses are valid IPv4 addresses
-     - verify if the IPv4 addresses are in use by a network device
-     - verify if the IPv4 addresses are in use by a client
-     - verify if the IPv4 addresses are reachable
-     - deploying the configuration file will create an IPv4 address conflict if any of the above steps fail for one IPv4 address
+     - Verify if the IPv4 addresses are:
+        - Used by a network device
+        - Used by a client
+        - Reachable
+     - deploying the configuration template will create an IPv4 address conflict if any of the above validations fail for one IPv4 address
+
+Execute the script:
 
 $ python ip_conflict_prevention.py
 
+
 *Sample output:*
 
-
 Start of Application "ip_conflict_prevention.py" Run
-Input the CLI Template file name (example - "cli.txt"):   cli.txt
+Input the CLI Template file name (example - "config.txt"):   cli_template.txt
 
 The CLI template:
 
@@ -45,8 +44,11 @@ interface Loopback65
 interface Loopback200
  ip address 10.93.141.67 255.255.255.255
 !
+interface Loopback201
+ ip address 10.93.140.35 255.255.255.255
+!
 interface Tunnel201
- ip address 10.93.140.35 255.255.255.252
+ ip address 10.93.130.19 255.255.255.252
  tunnel source Loopback200
  tunnel destination 10.93.140.48
  keepalive
@@ -60,23 +62,26 @@ router eigrp 201
  exit
 !
 
-These valid IPv4 addresses will be configured by this CLI template:
-['10.93.130.21', '10.93.141.67', '10.93.140.35']
+The CLI template will configure these valid IPv4 addresses:
+['10.93.130.21', '10.93.141.67', '10.93.140.35', '10.93.130.19']
 
-The IPv4 address  10.93.130.21  is used by this device  PDX-M , interface  GigabitEthernet0/0
+The IPv4 address  10.93.130.21  is used by this device  PDX-M ,  GigabitEthernet0/0
 
-The IPv4 address  10.93.141.67  is used by this device  APB026.80DF.6E18 , interface  unknown
+The IPv4 address  10.93.141.67  is used by this device  AP682C.7B4C.0510 ,  
 
 The IPv4 address  10.93.140.35  is not used by any network devices
 The IPv4 address  10.93.140.35  is used by a client
 
-Deploying the template  cli.txt  will create an IP address conflict
+The IPv4 address  10.93.130.19  is not used by any network devices
+The IPv4 address  10.93.130.19  is not used by a client
+The IPv4 address  10.93.130.19  is not reachable
+
+Deploying the template  config.txt  will create an IP address conflict
 
 
-End of Application "path_trace.py" Run
+End of Application "ip_conflict_prevention.py" Run
 
 Process finished with exit code 0
-
 
 
 **License**
