@@ -14,16 +14,16 @@ This Python script will verify if the use of an IPv4 Address will create a dupli
 **Usage**
 
 This sample script will:
-     - ask user to input the file name with the CLI template to be configured
-     - validate the provided file name exists
-     - open the file
-     - select the IPv4 addresses to be configured on interfaces
-     - validate if the selected IPv4 addresses are valid IPv4 addresses
-     - Verify if the IPv4 addresses are:
-        - Used by a network device
-        - Used by a client
-        - Reachable
-     - deploying the configuration template will create an IPv4 address conflict if any of the above validations fail for one IPv4 address
+ - ask user to input the file name with the CLI template to be configured
+ - validate the provided file name exists
+ - open the file
+ - select the IPv4 addresses to be configured on interfaces
+   - validate if the selected IPv4 addresses are valid IPv4 addresses
+   - Verify if the IPv4 addresses are:
+     - Used by a network device
+     - Used by a client
+     - Reachable
+ - deploying the configuration template will create an IPv4 address conflict if any of the above validations fail for one IPv4 address
 
 Execute the script:
 
